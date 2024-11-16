@@ -35,8 +35,26 @@ class Room(models.Model):
         self.status = 'booked'
         self.save()
 
+    def is_available(self, check_in_date, check_out_date):
+        """
+        Check if the room is available for the given dates.
+        """
+        # Check if there are any bookings that overlap with the given dates
+        overlapping_bookings = Booking.objects.filter(
+            room=self,
+            check_in_date__lt=check_out_date,
+            check_out_date__gt=check_in_date,
+        )
+        # If there are overlapping bookings, the room is not available
+        return not overlapping_bookings.exists()
+
     def __str__(self):
         return f"Room {self.id}: {self.room_type} - {self.status}"
+
+
+from django.db import models
+from django.db.models import Q
+from django.utils import timezone
 
 class Booking(models.Model):
     STATUS_CHOICES = [
@@ -54,17 +72,51 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+    def cancel_booking(self):
+        """
+        Cancel the booking if it's confirmed or pending.
+        """
+        if self.status not in ['cancelled']:  # Ensure it's not already cancelled
+            self.status = 'cancelled'
+            self.room.status = 'available'  # Mark the room as available
+            self.room.save()  # Save the room status
+            self.save()  # Save the booking status
+            return True
+        return False
+
+    def can_confirm(self):
+        """
+        Check if the room can be confirmed (i.e., it's not already booked for the dates).
+        """
+        # Check if the room is already booked for the selected dates
+        overlapping_bookings = Booking.objects.filter(
+            room=self.room,
+            status='confirmed',  # Only check confirmed bookings
+            check_in_date__lt=self.check_out_date,
+            check_out_date__gt=self.check_in_date,
+        )
+        return not overlapping_bookings.exists()
+
     def save(self, *args, **kwargs):
+        if self.status == 'cancelled':
+            # If the booking is being canceled, ensure the room is available again
+            self.room.status = 'available'  # Mark room as available
+            self.room.save()
         if self.check_in_date and self.check_out_date and self.room:
             duration = (self.check_out_date - self.check_in_date).days
             if duration > 0:
                 self.total_price = self.room.price_per_night * duration
             else:
                 raise ValueError("Check-out date must be after check-in date.")
+        
+        if self.status == 'confirmed' and not self.can_confirm():
+            raise ValueError("The room is already booked for the selected dates and cannot be confirmed.")
+
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Booking for {self.room.room_type} by {self.customer.last_name}"
+        return f"Booking for {self.room.id},{self.room.room_type} by {self.customer.last_name}"
 
 class Payment(models.Model):
     PAYMENT_STATUS_CHOICES = [
@@ -84,8 +136,10 @@ class Payment(models.Model):
 
     def save(self, *args, **kwargs):
         if self.booking and not self.amount:
-            self.amount = self.booking.total_price  # Set amount from booking's total_price
+            # Automatically set the amount based on the associated booking's total_price
+            self.amount = self.booking.total_price  
         super().save(*args, **kwargs)
+
 
 
 
