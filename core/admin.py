@@ -17,7 +17,7 @@ def room_booking_info(request, room_id):
 class BookingAdmin(admin.ModelAdmin):
     form = BookingForm  # Use the custom form that calculates the price
     
-    list_display = ['room', 'user', 'check_in_date', 'check_out_date', 'total_price', 'status']
+    list_display = ['room', 'customer', 'check_in_date', 'check_out_date', 'total_price', 'status']
     search_fields = ['room__room_type', 'user__username']
 
     # Optional: You could add some inline validation to ensure check-in/check-out date
@@ -73,7 +73,7 @@ class RoomAdmin(admin.ModelAdmin):
     search_fields = ('room_type', 'description')
 
     class Media:
-        js = ('admin/js/room_availability_check.js',)
+        js = ('static/admin/js/room_availability_check.js',)
 
 # Register the RoomAdmin for the Room model, only if not already registered
 if not admin.site.is_registered(Room):

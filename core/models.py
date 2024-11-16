@@ -46,7 +46,7 @@ class Booking(models.Model):
     ]
 
     room = models.ForeignKey(Room, related_name='bookings', on_delete=models.CASCADE)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, related_name='bookings', on_delete=models.CASCADE, default=1)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -64,7 +64,7 @@ class Booking(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Booking for {self.room.room_type} by {self.user.username}"
+        return f"Booking for {self.room.room_type} by {self.customer.last_name}"
 
 class Payment(models.Model):
     PAYMENT_STATUS_CHOICES = [
@@ -74,13 +74,20 @@ class Payment(models.Model):
     ]
 
     booking = models.ForeignKey(Booking, related_name='payments', on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Payment for booking {self.booking.id} - {self.status}"
+
+    def save(self, *args, **kwargs):
+        if self.booking and not self.amount:
+            self.amount = self.booking.total_price  # Set amount from booking's total_price
+        super().save(*args, **kwargs)
+
+
 
 # Signal to update Booking and Room status when Payment is confirmed
 @receiver(post_save, sender=Payment)

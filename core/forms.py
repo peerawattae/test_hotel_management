@@ -27,7 +27,7 @@ class RoomForm(forms.ModelForm):
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
-        fields = ['room', 'user', 'check_in_date', 'check_out_date', 'status']
+        fields = ['room', 'customer', 'check_in_date', 'check_out_date', 'status']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
