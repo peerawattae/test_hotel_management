@@ -68,7 +68,12 @@ class Booking(models.Model):
         # When the booking is confirmed, update the room's status
         if self.status == 'confirmed':
             self.room.mark_as_unavailable()
-
+        if self.pk:  # Check if this is an update (not a new instance)
+            old_status = Booking.objects.get(pk=self.pk).status
+            if old_status != self.status and self.status == 'cancelled':
+                # Update the room status to 'available'
+                self.room.status = 'available'
+                self.room.save()
         super().save(*args, **kwargs)
 
     def __str__(self):
