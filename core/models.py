@@ -26,7 +26,7 @@ class Room(models.Model):
     room_type = models.CharField(max_length=100)
     description = models.TextField()
     price_per_night = models.DecimalField(max_digits=8, decimal_places=2)
-    status = models.CharField(max_length=50, choices=[('available', 'Available'), ('booked', 'Booked')])
+    status = models.CharField(max_length=50, choices=[('available', 'Available'), ('booked', 'Booked'), ('pending', 'Pending')])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -52,33 +52,44 @@ class Room(models.Model):
         return f"Room {self.id}: {self.room_type} - {self.status}"
 
 class Booking(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
     room = models.ForeignKey(Room, related_name='bookings', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=50, choices=[('confirmed', 'Confirmed'), ('cancelled', 'Cancelled')])
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # Set check_in_date and check_out_date if not provided
-        if not self.check_in_date:
-            # Example: Set check-in date to today if not set
-            self.check_in_date = timezone.now().date()
-        if not self.check_out_date:
-            # Example: Set check-out date to 1 day after check-in
-            self.check_out_date = self.check_in_date + timezone.timedelta(days=1)
-
-        # When the booking is confirmed, update the room's status
-        if self.status == 'confirmed':
-            self.room.mark_as_unavailable()
+        """
+        Update the room's status based on the booking's status.
+        """
         if self.pk:  # Check if this is an update (not a new instance)
             old_status = Booking.objects.get(pk=self.pk).status
-            if old_status != self.status and self.status == 'cancelled':
-                # Update the room status to 'available'
-                self.room.status = 'available'
+            if old_status != self.status:
+                if self.status == 'confirmed':
+                    # Mark room as booked
+                    self.room.status = 'booked'
+                elif self.status == 'pending':
+                    # Mark room as pending
+                    self.room.status = 'pending'
+                elif self.status == 'cancelled':
+                    # Mark room as available
+                    self.room.status = 'available'
                 self.room.save()
+
+        elif self.status == 'pending':
+            # If it's a new booking and status is pending, mark the room as pending
+            self.room.status = 'pending'
+            self.room.save()
+
         super().save(*args, **kwargs)
 
     def __str__(self):
