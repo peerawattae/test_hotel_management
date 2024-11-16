@@ -36,12 +36,12 @@ class BookingForm(forms.ModelForm):
         check_out_date = cleaned_data.get('check_out_date')
         status = cleaned_data.get('status')
 
-        # Skip availability check if the booking is being canceled
+        # Skip availability check if the booking is being cancelled
         if status != 'cancelled' and check_in_date and check_out_date:
-            # Check availability for the given dates (only if booking is not being cancelled)
-            if not room.is_available(check_in_date, check_out_date):
+            # Only check availability if booking is not cancelled
+            if room and not room.is_available(check_in_date, check_out_date):
                 raise forms.ValidationError("This room is not available for the selected dates.")
-
+        
             # Calculate the total price if room, check_in_date, and check_out_date are present
             if room and check_in_date and check_out_date:
                 duration = (check_out_date - check_in_date).days
@@ -82,16 +82,28 @@ class BookingAdmin(admin.ModelAdmin):
 
     def cancel_booking(self, request, queryset):
         for booking in queryset:
-            booking.cancel_booking()
+            if booking.status != 'cancelled':  # Ensure we don't cancel an already cancelled booking
+                booking.cancel_booking()
+                booking.room.status = 'available'  # Set room status to 'available'
+                booking.room.save()
         self.message_user(request, "Selected bookings have been cancelled.")
-
+    
     def confirm_booking(self, request, queryset):
         for booking in queryset:
-            if booking.can_confirm():
+            if booking.status == 'cancelled':  # Allow re-confirmation after cancellation
                 booking.status = 'confirmed'
+                booking.room.status = 'booked'  # Mark room as booked
+                booking.room.save()  # Save room status
                 booking.save()
+                self.message_user(request, f"Booking {booking.id} has been confirmed.")
+            elif booking.can_confirm():  # Confirm the booking only if it's not cancelled
+                booking.status = 'confirmed'
+                booking.room.status = 'booked'  # Mark room as booked
+                booking.room.save()  # Save room status
+                booking.save()
+                self.message_user(request, f"Booking {booking.id} has been confirmed.")
             else:
                 self.message_user(request, f"Booking {booking.id} cannot be confirmed due to room availability.")
-    
+
     cancel_booking.short_description = "Cancel selected bookings"
     confirm_booking.short_description = "Confirm selected bookings"

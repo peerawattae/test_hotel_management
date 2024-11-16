@@ -39,22 +39,23 @@ class Room(models.Model):
         """
         Check if the room is available for the given dates.
         """
-        # Check if there are any bookings that overlap with the given dates
+        # Check if there are any bookings that overlap with the given dates and are not cancelled
         overlapping_bookings = Booking.objects.filter(
             room=self,
             check_in_date__lt=check_out_date,
-            check_out_date__gt=check_in_date,
-        )
+            check_out_date__gt=check_in_date
+        ).exclude(status='cancelled')  # Exclude cancelled bookings
+
         # If there are overlapping bookings, the room is not available
         return not overlapping_bookings.exists()
+
+
 
     def __str__(self):
         return f"Room {self.id}: {self.room_type} - {self.status}"
 
 
 from django.db import models
-from django.db.models import Q
-from django.utils import timezone
 
 class Booking(models.Model):
     STATUS_CHOICES = [
@@ -72,19 +73,6 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
-    def cancel_booking(self):
-        """
-        Cancel the booking if it's confirmed or pending.
-        """
-        if self.status not in ['cancelled']:  # Ensure it's not already cancelled
-            self.status = 'cancelled'
-            self.room.status = 'available'  # Mark the room as available
-            self.room.save()  # Save the room status
-            self.save()  # Save the booking status
-            return True
-        return False
-
     def can_confirm(self):
         """
         Check if the room can be confirmed (i.e., it's not already booked for the dates).
@@ -97,12 +85,29 @@ class Booking(models.Model):
             check_out_date__gt=self.check_in_date,
         )
         return not overlapping_bookings.exists()
+    def cancel_booking(self):
+        """
+        Cancel the booking if it's confirmed or pending.
+        """
+        if self.status != 'cancelled':  # Ensure it's not already cancelled
+            self.status = 'cancelled'
+            self.room.status = 'available'  # Mark the room as available again
+            self.room.save()  # Save the room status
+            self.save()  # Save the booking status
+            return True
+        return False
 
     def save(self, *args, **kwargs):
-        if self.status == 'cancelled':
-            # If the booking is being canceled, ensure the room is available again
-            self.room.status = 'available'  # Mark room as available
+        # If the booking is being canceled, ensure the room is available again
+        if self.status == 'cancelled' and self.room.status != 'available':
+            self.room.status = 'available'  # Mark the room as available
             self.room.save()
+            print(f"Room {self.room.id} status updated to available")
+        if self.status == 'confirmed' and self.room.status != 'booked':
+            self.room.status = 'booked'  # Mark the room as booked
+            self.room.save()
+            print(f"Room {self.room.id} status updated to booked")
+        # Ensure the price is calculated when creating the booking
         if self.check_in_date and self.check_out_date and self.room:
             duration = (self.check_out_date - self.check_in_date).days
             if duration > 0:
@@ -110,13 +115,15 @@ class Booking(models.Model):
             else:
                 raise ValueError("Check-out date must be after check-in date.")
         
+        # Check if the room is available for confirmation
         if self.status == 'confirmed' and not self.can_confirm():
             raise ValueError("The room is already booked for the selected dates and cannot be confirmed.")
 
+        # Save the booking (after all validations)
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Booking for {self.room.id},{self.room.room_type} by {self.customer.last_name}"
+        return f"Booking for {self.room.id}, {self.room.room_type} by {self.customer.last_name}"
 
 class Payment(models.Model):
     PAYMENT_STATUS_CHOICES = [
