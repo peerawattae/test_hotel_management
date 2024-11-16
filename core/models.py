@@ -30,14 +30,14 @@ class Room(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def is_available(self, check_in_date, check_out_date):
-        """
-        Check if the room is available for the given date range.
-        """
-        conflicting_bookings = self.bookings.filter(
-            Q(check_in_date__lte=check_out_date) & Q(check_out_date__gte=check_in_date)
-        )
-        return not conflicting_bookings.exists()
+    # def is_available(self, check_in_date, check_out_date):
+    #     """
+    #     Check if the room is available for the given date range.
+    #     """
+    #     conflicting_bookings = self.bookings.filter(
+    #         Q(check_in_date__lte=check_out_date) & Q(check_out_date__gte=check_in_date)
+    #     )
+    #     return not conflicting_bookings.exists()
 
     def mark_as_unavailable(self):
         """
@@ -45,6 +45,11 @@ class Room(models.Model):
         """
         self.status = 'booked'
         self.save()
+    def __str__(self):
+        """
+        Return a string representation of the room including its ID and room type.
+        """
+        return f"Room {self.id}: {self.room_type} - {self.status}"
 
 class Booking(models.Model):
     room = models.ForeignKey(Room, related_name='bookings', on_delete=models.CASCADE)

@@ -17,7 +17,7 @@ class RoomAdmin(admin.ModelAdmin):
         )
     room_availability.short_description = 'Room Availability'
 
-    list_display = ['room_type', 'status', 'room_availability']  # Add 'room_availability' to the list display
+    list_display = ['id', 'room_type', 'status', 'price_per_night']  # Add 'room_availability' to the list display
     list_filter = ('status',)
     search_fields = ('room_type', 'description')
 
