@@ -17,9 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from core import views
 from django.urls import path
+from django.http import HttpResponse
+
+def home_view(request):
+    return HttpResponse("Welcome to the Hotel Management System!")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('check-availability/<int:room_id>/', views.check_room_availability, name='check_availability'),
     path('room/<int:room_id>/calendar/', views.room_calendar_view, name='room_calendar'),
+    path('', admin.site.urls),  # Add this line
 ]
