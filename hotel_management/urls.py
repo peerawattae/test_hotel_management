@@ -21,4 +21,5 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('check-availability/<int:room_id>/', views.check_room_availability, name='check_availability'),
+    path('room/<int:room_id>/calendar/', views.room_calendar_view, name='room_calendar'),
 ]

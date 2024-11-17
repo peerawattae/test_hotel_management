@@ -1,0 +1,27 @@
+<html>
+<head>
+    <title>Room Booking Calendar</title>
+    <style>
+        .booked { background-color: red; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Room Booking Calendar for {{ room.name }}</h1>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Status</th>
+        </tr>
+        {% for booking in booked_dates %}
+        <tr>
+            <td>{{ booking.start }} to {{ booking.end }}</td>
+            <td class="booked">{{ booking.title }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2">No bookings yet.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

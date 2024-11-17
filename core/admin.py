@@ -4,6 +4,7 @@ from .forms import RoomForm, BookingForm
 from django.utils.html import format_html
 from django.utils.timezone import now
 from django.http import JsonResponse
+from django.urls import reverse
 
 # Room Booking Info View
 def room_booking_info(request, room_id):
@@ -37,6 +38,16 @@ class RoomAdmin(admin.ModelAdmin):
             obj.id
         )
     room_availability.short_description = 'Room Availability'
+    
+    def view_calendar(self, obj):
+        # Generate a URL to the room calendar view
+        return format_html(
+            '<a class="button" href="/room/{}/calendar/">View Calendar</a>',
+            obj.id
+        )
+
+    view_calendar.short_description = "Booking Calendar"
+    view_calendar.allow_tags = True
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "room":
@@ -67,7 +78,7 @@ class RoomAdmin(admin.ModelAdmin):
             obj.id
         )
     room_booking_info.short_description = "Booking Info"
-    list_display = ['id', 'room_type', 'status', 'price_per_night', 'room_booking_info']
+    list_display = ['id', 'room_type', 'status', 'price_per_night', 'room_booking_info', 'view_calendar']
     readonly_fields = ()  # Removed 'booked_at'
     list_filter = ('status',)
     search_fields = ('room_type', 'description')
