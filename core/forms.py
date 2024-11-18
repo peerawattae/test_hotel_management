@@ -1,15 +1,24 @@
 from django import forms
 from django.contrib import admin  # Corrected import statement
-from .models import Room, Booking, Customer
+from .models import Room, Booking, Customer, Payment
 from django.utils import timezone
 
-class RoomForm(forms.ModelForm):
-    check_in_date = forms.DateField(required=False, widget=forms.SelectDateWidget(years=range(2024, 2026)))
-    check_out_date = forms.DateField(required=False, widget=forms.SelectDateWidget(years=range(2024, 2026)))
+class RoomForm(forms.ModelForm):    
+    check_in_date = forms.DateField(
+        required=False, 
+        widget=forms.SelectDateWidget(years=range(2024, 2026)),
+        initial=None  # Default value set to None
+    )
+    check_out_date = forms.DateField(
+        required=False, 
+        widget=forms.SelectDateWidget(years=range(2024, 2026)),
+        initial=None  # Default value set to None
+    )
+
 
     class Meta:
         model = Room
-        fields = ['room_type', 'description', 'price_per_night', 'status', 'check_in_date', 'check_out_date']
+        fields = ['room_type', 'description', 'price_per_night', 'status']
 
     def clean(self):
         cleaned_data = super().clean()
@@ -28,7 +37,19 @@ class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
         fields = ['room', 'customer', 'check_in_date', 'check_out_date', 'status']
-
+    
+    check_in_date = forms.DateField(
+        widget=forms.TextInput(attrs={
+            'class': 'datepicker',
+            'placeholder': 'Select check-in date'
+        })
+    )
+    check_out_date = forms.DateField(
+        widget=forms.TextInput(attrs={
+            'class': 'datepicker',
+            'placeholder': 'Select check-out date'
+        })
+    )
     def clean(self):
         cleaned_data = super().clean()
         room = cleaned_data.get('room')
@@ -107,3 +128,8 @@ class BookingAdmin(admin.ModelAdmin):
 
     cancel_booking.short_description = "Cancel selected bookings"
     confirm_booking.short_description = "Confirm selected bookings"
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['booking', 'amount', 'status']

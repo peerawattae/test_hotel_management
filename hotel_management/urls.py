@@ -18,6 +18,8 @@ from django.contrib import admin
 from core import views
 from django.urls import path
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from core.forms import BookingForm
 
 def home_view(request):
     return HttpResponse("Welcome to the Hotel Management System!")
@@ -26,5 +28,24 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('check-availability/<int:room_id>/', views.check_room_availability, name='check_availability'),
     path('room/<int:room_id>/calendar/', views.room_calendar_view, name='room_calendar'),
-    path('', admin.site.urls),  # Add this line
+    path('', views.dashboard, name='dashboard'),
+    #code for user site below
+    path('rooms/', views.room_list, name='room_list'),
+    path('rooms/new/', views.room_create, name='create_room'),
+    path('rooms/<int:room_id>/edit/', views.room_edit, name='room_edit'),
+    path('rooms/<int:room_id>/delete/', views.room_delete, name='room_delete'),
+    path('rooms/<int:room_id>/', views.room_detail, name='room_detail'),
+    path('bookings/', views.booking_list, name='booking_list'),
+    path('bookings/new/', views.new_booking, name='new_booking'),    
+    path('bookings/<int:booking_id>/edit/', views.booking_edit, name='booking_edit'),
+    path('bookings/<int:booking_id>/delete/', views.booking_delete, name='booking_delete'),
+    path('customers/', views.customer_list, name='customer_list'),
+    path('reviews/', views.review_list, name='review_list'),
+    path('dashboard/', views.dashboard, name='dashboard'),
 ]
+from core.views import booking_view
+
+urlpatterns += [
+    path('book-room/', booking_view, name='book_room'),
+]
+

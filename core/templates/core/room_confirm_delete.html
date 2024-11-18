@@ -1,0 +1,7 @@
+<h1>Delete Room</h1>
+<p>Are you sure you want to delete {{ room.room_type }}?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, delete</button>
+</form>
+<a href="{% url 'room_list' %}">Cancel</a>

@@ -78,7 +78,7 @@ class RoomAdmin(admin.ModelAdmin):
             obj.id
         )
     room_booking_info.short_description = "Booking Info"
-    list_display = ['id', 'room_type', 'status', 'price_per_night', 'room_booking_info', 'view_calendar']
+    list_display = ['id', 'room_type', 'status', 'price_per_night', 'view_calendar']
     readonly_fields = ()  # Removed 'booked_at'
     list_filter = ('status',)
     search_fields = ('room_type', 'description')

@@ -1,0 +1,28 @@
+
+{% load static %}
+
+<!-- Add this to the top of your HTML to include jQuery UI and the date picker styles -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Booking</button>
+</form>
+
+<script>
+    $(document).ready(function() {
+        // Initialize the date picker for both check-in and check-out fields
+        $(".datepicker").datepicker({
+            dateFormat: 'yy-mm-dd',  // Specify the format
+            minDate: 0,  // Disable past dates
+            beforeShowDay: function(date) {
+                // Optionally, disable weekends
+                var day = date.getDay();
+                return [(day != 0 && day != 6)];  // Disable Sundays (0) and Saturdays (6)
+            }
+        });
+    });
+</script>

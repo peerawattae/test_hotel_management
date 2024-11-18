@@ -1,0 +1,10 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<h1>Create a New Room</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Create Room</button>
+</form>
+{% endblock %}

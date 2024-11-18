@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        nav ul {
+            list-style-type: none;
+        }
+        nav ul li {
+            margin: 10px 0;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Hotel Management System!</h1>
+    <nav>
+        <h2>Features:</h2>
+        <ul>
+            <li><a href="/check-availability/1/?check_in_date=2024-01-01&check_out_date=2024-01-05">Check Room Availability</a></li>
+            <li><a href="/room/1/calendar/">View Room Calendar</a></li>
+            <li><a href="/admin/">Go to Admin Panel (For Staff)</a></li>
+        </ul>
+    </nav>
+    <h2>Available Rooms:</h2>
+    <ul>
+        {% for room in rooms %}
+            <li>
+                <strong>Room {{ room.id }}:</strong> {{ room.room_type }} - {{ room.status }} 
+                (<a href="/room/{{ room.id }}/calendar/">View Calendar</a>)
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<table>
+    <thead>
+        <tr>
+            <th>Room</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+            <th>Status</th>
+            <th>Total Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.room.room_type }}</td>
+            <td>{{ booking.check_in_date }}</td>
+            <td>{{ booking.check_out_date }}</td>
+            <td>{{ booking.status }}</td>
+            <td>{{ booking.total_price }}</td>
+            <td>
+                <a href="{% url 'booking_edit' booking.id %}" class="btn btn-primary">Edit</a>
+                <a href="{% url 'booking_delete' booking.id %}" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Create New Booking Button placed at the bottom of the actions column -->
+<div style="margin-top: 20px;">
+    <a href="{% url 'new_booking' %}" class="btn btn-success">Create New Booking</a>
+</div>
+
+<!-- Back to Dashboard Button placed at the end of the booking list -->
+<div style="margin-top: 20px;">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>

@@ -1,0 +1,28 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Room Type</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for room in rooms %}
+        <tr>
+            <td>{{ room.id }}</td>
+            <td>{{ room.room_type }}</td>
+            <td>{{ room.status }}</td>
+            <td>
+                <a href="{% url 'room_edit' room.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'room_delete' room.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'create_room' %}" class="btn btn-success">Create New Room</a>
+<div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>

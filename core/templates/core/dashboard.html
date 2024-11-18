@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to the Hotel Management System</h1>
+    <ul>
+        <li><a href="{% url 'room_list' %}">Manage Rooms</a></li>
+        <li><a href="{% url 'booking_list' %}">Manage Bookings</a></li>
+        <li><a href="{% url 'customer_list' %}">Manage Customers</a></li>
+        <li><a href="{% url 'review_list' %}">View Reviews</a></li>
+    </ul>
+</body>
+</html>
