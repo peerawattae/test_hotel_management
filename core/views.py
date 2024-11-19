@@ -1,14 +1,10 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
-from .models import Room, Booking
+from django.shortcuts import get_object_or_404, render, redirect
+from .models import Room, Booking, Payment, Customer, Review
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from .forms import BookingForm, RoomForm, PaymentForm
-
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from .models import Room, Booking, Customer, Review
-from .forms import BookingForm
 
 #code for user view
 def dashboard(request):
@@ -108,6 +104,53 @@ def booking_delete(request, booking_id):
         return redirect('booking_list')  # Redirect to the booking list
     
     return render(request, 'core/booking_confirm_delete.html', {'booking': booking})
+
+# List Payments
+def payment_list(request):
+    payments = Payment.objects.all()  # Fetch all payments
+    return render(request, 'payment_list.html', {'payments': payments})
+
+# Create Payment
+def payment_create(request):
+    if request.method == 'POST':
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            # No need to manually set the booking if it's in the form
+            form.save()
+            messages.success(request, "Payment created successfully!")
+            return redirect('payment_list')  # Redirect to the payment list view
+    else:
+        form = PaymentForm()
+    
+    bookings = Booking.objects.all()  # Pass available bookings to the template
+    return render(request, 'core/payment_form.html', {'form': form, 'bookings': bookings})
+
+# Edit Payment
+def payment_edit(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id)
+    
+    if request.method == 'POST':
+        form = PaymentForm(request.POST, instance=payment)
+        if form.is_valid():
+            form.save()  # Save the edited payment
+            messages.success(request, "Payment updated successfully!")
+            return redirect('payment_list')  # Redirect to the payment list
+    else:
+        form = PaymentForm(instance=payment)
+    
+    # Fetch bookings related to the payment, assuming you want the current booking
+    bookings = Booking.objects.all()  # Or filter by your logic (e.g., only related bookings)
+    
+    return render(request, 'core/payment_form.html', {'form': form, 'bookings': bookings, 'payment': payment})
+
+# Delete Payment
+def payment_delete(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id)
+    if request.method == 'POST':
+        payment.delete()
+        messages.success(request, "Payment deleted successfully!")
+        return redirect('payment_list')
+    return render(request, 'core/payment_confirm_delete.html', {'payment': payment})
 
 def customer_list(request):
     customers = Customer.objects.all()

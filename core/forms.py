@@ -130,6 +130,23 @@ class BookingAdmin(admin.ModelAdmin):
     confirm_booking.short_description = "Confirm selected bookings"
 
 class PaymentForm(forms.ModelForm):
+    booking = forms.ModelChoiceField(queryset=Booking.objects.all(), required=True)
+
     class Meta:
         model = Payment
         fields = ['booking', 'amount', 'status']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Automatically set the amount based on the selected booking
+        if self.instance and self.instance.booking:
+            self.fields['amount'].initial = self.instance.booking.total_price
+
+    def clean(self):
+        cleaned_data = super().clean()
+        amount = cleaned_data.get('amount')
+        booking = cleaned_data.get('booking')
+
+        if booking and amount != booking.total_price:
+            raise forms.ValidationError("Amount must match the booking's total price.")
+        return cleaned_data

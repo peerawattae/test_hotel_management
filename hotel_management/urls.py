@@ -20,6 +20,7 @@ from django.urls import path
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from core.forms import BookingForm
+from core.views import payment_list, payment_create, payment_edit, payment_delete
 
 def home_view(request):
     return HttpResponse("Welcome to the Hotel Management System!")
@@ -39,6 +40,10 @@ urlpatterns = [
     path('bookings/new/', views.new_booking, name='new_booking'),    
     path('bookings/<int:booking_id>/edit/', views.booking_edit, name='booking_edit'),
     path('bookings/<int:booking_id>/delete/', views.booking_delete, name='booking_delete'),
+    path('payments/', payment_list, name='payment_list'),
+    path('payments/new/', payment_create, name='payment_create'),
+    path('payments/<int:payment_id>/edit/', payment_edit, name='payment_edit'),
+    path('payments/<int:payment_id>/delete/', payment_delete, name='payment_delete'),
     path('customers/', views.customer_list, name='customer_list'),
     path('reviews/', views.review_list, name='review_list'),
     path('dashboard/', views.dashboard, name='dashboard'),

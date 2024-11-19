@@ -1,0 +1,36 @@
+<form method="post">
+    {% csrf_token %}
+    
+    <!-- Render amount field manually -->
+    <div class="form-group">
+        <label for="id_amount">Amount:</label>
+        <input type="text" name="amount" id="id_amount" class="form-control" value="{{ form.amount.value }}" required>
+    </div>
+    
+    <!-- Render status field manually -->
+    <div class="form-group">
+        <label for="id_status">Status:</label>
+        <select name="status" id="id_status" class="form-control">
+            <option value="pending" {% if form.status.value == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="confirmed" {% if form.status.value == 'confirmed' %}selected{% endif %}>Confirmed</option>
+            <option value="failed" {% if form.status.value == 'failed' %}selected{% endif %}>Failed</option>
+        </select>
+    </div>
+    
+    <!-- Manually render the booking field with the select dropdown -->
+    <div class="form-group">
+        <label for="booking">Select Booking:</label>
+        <select name="booking" id="booking" class="form-control" required>
+            <option value="">-- Choose a Booking --</option>
+            {% for booking in bookings %}
+            <option value="{{ booking.id }}" {% if booking.id == form.booking.value %}selected{% endif %}>
+                {{ booking.room.room_type }} ({{ booking.check_in_date }} - {{ booking.check_out_date }})
+            </option>
+            {% empty %}
+            <option value="">No bookings available</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <button type="submit" class="btn btn-success">Save Payment</button>
+</form>

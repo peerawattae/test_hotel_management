@@ -1,0 +1,38 @@
+
+
+{% block content %}
+<h2>Manage Payments</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Booking</th>
+            <th>Amount</th>
+            <th>Payment Date</th>
+            <th>Payment Method</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in payments %}
+        <tr>
+            <td>
+                {% if payment.booking %}
+                    {{ payment.booking.room.room_type }}
+                {% else %}
+                    No Booking
+                {% endif %}
+            </td>
+            <td>{{ payment.amount }}</td>
+            <td>{{ payment.payment_date }}</td>
+            <td>{{ payment.payment_method }}</td>
+            <td>
+                <a href="{% url 'payment_edit' payment.id %}" class="btn btn-primary">Edit</a>
+                <a href="{% url 'payment_delete' payment.id %}" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'payment_create' %}" class="btn btn-success">Create New Payment</a>
+<a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+{% endblock %}

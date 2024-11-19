@@ -1,7 +1,15 @@
-<h1>{{ form.instance.id|default:"Create Room" }}</h1>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Save</button>
+    
+    <label for="booking">Select Booking:</label>
+    <select name="booking" id="booking" required>
+        {% for booking in bookings %}
+        <option value="{{ booking.id }}">
+            Booking #{{ booking.id }} - Room {{ booking.room.room_type }} ({{ booking.check_in_date }} to {{ booking.check_out_date }})
+        </option>
+        {% endfor %}
+    </select>
+    
+    <button type="submit">Submit</button>
 </form>
-<a href="{% url 'room_list' %}">Back to Room List</a>

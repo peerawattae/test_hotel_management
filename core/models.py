@@ -132,7 +132,7 @@ class Payment(models.Model):
         ('failed', 'Failed'),
     ]
 
-    booking = models.ForeignKey(Booking, related_name='payments', on_delete=models.CASCADE)
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
