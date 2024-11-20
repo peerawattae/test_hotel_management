@@ -45,6 +45,9 @@ urlpatterns = [
     path('payments/<int:payment_id>/edit/', payment_edit, name='payment_edit'),
     path('payments/<int:payment_id>/delete/', payment_delete, name='payment_delete'),
     path('customers/', views.customer_list, name='customer_list'),
+    path('customers/new/', views.customer_create, name='customer_create'),
+    path('customers/<int:customer_id>/edit/', views.customer_edit, name='customer_edit'),
+    path('customers/<int:customer_id>/delete/', views.customer_delete, name='customer_delete'),
     path('reviews/', views.review_list, name='review_list'),
     path('dashboard/', views.dashboard, name='dashboard'),
 ]

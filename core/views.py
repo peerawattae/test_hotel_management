@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from .models import Room, Booking, Payment, Customer, Review
 from django.utils import timezone
 from django.shortcuts import render, redirect
-from .forms import BookingForm, RoomForm, PaymentForm
+from .forms import BookingForm, RoomForm, PaymentForm, CustomerForm
 from django.contrib import messages
 
 #code for user view
@@ -166,6 +166,44 @@ def customer_list(request):
 def review_list(request):
     reviews = Review.objects.all()
     return render(request, 'review_list.html', {'reviews': reviews})
+
+def customer_list(request):
+    customers = Customer.objects.all()
+    return render(request, 'core/customer_list.html', {'customers': customers})
+
+# Create a New Customer
+def customer_create(request):
+    if request.method == 'POST':
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer created successfully!')
+            return redirect('customer_list')
+    else:
+        form = CustomerForm()
+    return render(request, 'core/customer_form.html', {'form': form})
+
+# Edit an Existing Customer
+def customer_edit(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer updated successfully!')
+            return redirect('customer_list')
+    else:
+        form = CustomerForm(instance=customer)
+    return render(request, 'core/customer_form.html', {'form': form})
+
+# Delete a Customer
+def customer_delete(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    if request.method == 'POST':
+        customer.delete()
+        messages.success(request, 'Customer deleted successfully!')
+        return redirect('customer_list')
+    return render(request, 'core/customer_confirm_delete.html', {'customer': customer})
 #end of code for user site
 
 def check_room_availability(room, check_in_date, check_out_date):

@@ -150,3 +150,8 @@ class PaymentForm(forms.ModelForm):
         if booking and amount != booking.total_price:
             raise forms.ValidationError("Amount must match the booking's total price.")
         return cleaned_data
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['first_name', 'last_name', 'email', 'phone_num']

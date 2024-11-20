@@ -1,6 +1,36 @@
-<h1>Customers</h1>
-<ul>
-    {% for customer in customers %}
-    <li>{{ customer.first_name }} {{ customer.last_name }}</li>
-    {% endfor %}
-</ul>
+<div class="container mt-4">
+    <h1>Manage Customers</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.first_name }}</td>
+                <td>{{ customer.last_name }}</td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.phone_number }}</td>
+                <td>{{ customer.address }}</td>
+                <td>
+                    <a href="{% url 'customer_edit' customer.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    <form method="post" action="{% url 'customer_delete' customer.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'customer_create' %}" class="btn btn-primary mb-3">Add New Customer</a>
+<div class="d-flex justify-content-end mb-3">
+<a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>

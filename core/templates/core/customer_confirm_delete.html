@@ -1,0 +1,9 @@
+<div class="container mt-4">
+    <h1>Confirm Delete</h1>
+    <p>Are you sure you want to delete {{ customer.first_name }} {{ customer.last_name }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'customer_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

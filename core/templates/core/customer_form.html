@@ -1,0 +1,9 @@
+<div class="container mt-4">
+    <h1>{{ customer.id|default:"Create New" }} Customer</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'customer_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

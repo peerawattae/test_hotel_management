@@ -1,35 +1,52 @@
-<table>
-    <thead>
-        <tr>
-            <th>Room</th>
-            <th>Check-In</th>
-            <th>Check-Out</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for booking in bookings %}
-        <tr>
-            <td>{{ booking.room.room_type }}</td>
-            <td>{{ booking.check_in_date }}</td>
-            <td>{{ booking.check_out_date }}</td>
-            <td>{{ booking.get_status_display }}</td>
-            <td>
-                {% if booking.status == 'canceled' %}
-                <a href="{% url 'new_booking' %}?room_id={{ booking.room.id }}&check_in_date={{ booking.check_in_date }}&check_out_date={{ booking.check_out_date }}" class="btn btn-primary">Rebook</a>
-                {% else %}
-                <a href="{% url 'booking_edit' booking.id %}" class="btn btn-warning">Edit</a>
-                <form method="post" action="{% url 'booking_delete' booking.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Manage Bookings</h1>
+        <div>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Room ID</th>
+                <th>Room</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <!-- Room ID -->
+                <td>{{ booking.room.id }}</td>
+                <!-- Room Type -->
+                <td>{{ booking.room.room_type }}</td>
+                <!-- Check-In Date -->
+                <td>{{ booking.check_in_date }}</td>
+                <!-- Check-Out Date -->
+                <td>{{ booking.check_out_date }}</td>
+                <!-- Status -->
+                <td>{{ booking.get_status_display }}</td>
+                <!-- Actions -->
+                <td>
+                    <a href="{% url 'booking_edit' booking.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    <form method="post" action="{% url 'booking_delete' booking.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                    {% if booking.status == 'canceled' %}
+                    <a href="{% url 'new_booking' %}?room_id={{ booking.room.id }}&check_in_date={{ booking.check_in_date }}&check_out_date={{ booking.check_out_date }}" class="btn btn-primary btn-sm">Rebook</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<!-- Create New Booking Button -->
 <a href="{% url 'new_booking' %}" class="btn btn-primary">Create New Booking</a>
 <div class="d-flex justify-content-end mb-3">
-<a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+<!-- Back to Dashboard Button -->
+<a href="{% url 'dashboard' %}" class="btn btn-secondary me-2">Back to Dashboard</a>
