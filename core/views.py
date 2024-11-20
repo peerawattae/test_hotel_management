@@ -49,8 +49,14 @@ def room_delete(request, room_id):
     return render(request, 'core/room_confirm_delete.html', {'room': room})
 
 def room_list(request):
-    rooms = Room.objects.all()
-    return render(request, 'room_list.html', {'rooms': rooms})
+    sort_order = request.GET.get('sort', 'asc')  # Get sorting order from query parameter; default to ascending
+    if sort_order == 'desc':
+        rooms = Room.objects.all().order_by('-price_per_night')  # Descending order
+    else:
+        rooms = Room.objects.all().order_by('price_per_night')  # Ascending order
+
+    return render(request, 'core/room_list.html', {'rooms': rooms, 'sort_order': sort_order})
+
 
 def room_detail(request, room_id):
     room = get_object_or_404(Room, pk=room_id)
