@@ -64,12 +64,19 @@ def new_booking(request):
     if request.method == 'POST':
         form = BookingForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('booking_list')
+            booking = form.save(commit=False)
+            # Check availability before saving
+            if check_room_availability(booking.room, booking.check_in_date, booking.check_out_date):
+                booking.save()
+                messages.success(request, "Booking confirmed successfully!")
+                return redirect('booking_list')
+            else:
+                messages.error(request, "Room is not available for the selected dates.")
     else:
         form = BookingForm()
     
     return render(request, 'core/new_booking.html', {'form': form})
+
 
 
 
@@ -161,21 +168,15 @@ def review_list(request):
     return render(request, 'review_list.html', {'reviews': reviews})
 #end of code for user site
 
-def check_room_availability(request, room_id):
-    check_in_date = request.GET.get('check_in_date')
-    check_out_date = request.GET.get('check_out_date')
+def check_room_availability(room, check_in_date, check_out_date):
+    overlapping_bookings = Booking.objects.filter(
+        room=room,
+        check_in_date__lt=check_out_date,
+        check_out_date__gt=check_in_date,
+        status='confirmed'  # Only consider confirmed bookings
+    )
+    return not overlapping_bookings.exists()
 
-    # Validate input
-    if not check_in_date or not check_out_date:
-        return JsonResponse({'error': 'Please provide both check_in_date and check_out_date'}, status=400)
-
-    room = get_object_or_404(Room, id=room_id)
-
-    # Check availability
-    if room.is_available(check_in_date, check_out_date):
-        return JsonResponse({'available': True})
-    else:
-        return JsonResponse({'available': False})
 
 def room_calendar_view(request, room_id):
     """

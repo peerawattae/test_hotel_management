@@ -5,7 +5,6 @@
             <th>Check-In</th>
             <th>Check-Out</th>
             <th>Status</th>
-            <th>Total Price</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -15,23 +14,22 @@
             <td>{{ booking.room.room_type }}</td>
             <td>{{ booking.check_in_date }}</td>
             <td>{{ booking.check_out_date }}</td>
-            <td>{{ booking.status }}</td>
-            <td>{{ booking.total_price }}</td>
+            <td>{{ booking.get_status_display }}</td>
             <td>
-                <a href="{% url 'booking_edit' booking.id %}" class="btn btn-primary">Edit</a>
-                <a href="{% url 'booking_delete' booking.id %}" class="btn btn-danger">Delete</a>
+                {% if booking.status == 'canceled' %}
+                <a href="{% url 'new_booking' %}?room_id={{ booking.room.id }}&check_in_date={{ booking.check_in_date }}&check_out_date={{ booking.check_out_date }}" class="btn btn-primary">Rebook</a>
+                {% else %}
+                <a href="{% url 'booking_edit' booking.id %}" class="btn btn-warning">Edit</a>
+                <form method="post" action="{% url 'booking_delete' booking.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-
-<!-- Create New Booking Button placed at the bottom of the actions column -->
-<div style="margin-top: 20px;">
-    <a href="{% url 'new_booking' %}" class="btn btn-success">Create New Booking</a>
-</div>
-
-<!-- Back to Dashboard Button placed at the end of the booking list -->
-<div style="margin-top: 20px;">
-    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
-</div>
+<a href="{% url 'new_booking' %}" class="btn btn-primary">Create New Booking</a>
+<div class="d-flex justify-content-end mb-3">
+<a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
