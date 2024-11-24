@@ -13,8 +13,46 @@ def dashboard(request):
 #code for user view
 
 def room_list(request):
+    # Get filter parameters from the request
+    status_filter = request.GET.get('status', 'all')  # Default to 'all'
+    search_query = request.GET.get('search', '')  # Get the search query for Room ID or Room Type
+
+    # Start with all rooms and filter based on search query and status
     rooms = Room.objects.all()
-    return render(request, 'core/room_list.html', {'rooms': rooms})
+
+    # Apply search filter for Room ID or Room Type if provided
+# Apply search filter for Room ID or Room Type if provided
+    if search_query:
+        rooms = rooms.filter(
+            id__icontains=search_query
+        ) | rooms.filter(room_type__icontains=search_query)  # Search by Room ID or Room Type
+
+
+    # Apply status filter
+    if status_filter == 'available':
+        rooms = rooms.filter(status='available')
+    elif status_filter == 'booked':
+        rooms = rooms.filter(status='booked')
+    elif status_filter == 'pending':
+        rooms = rooms.filter(status='pending')
+
+    # Count for each status (optional, useful for UI)
+    status_counts = {
+        'all': Room.objects.count(),
+        'available': Room.objects.filter(status='available').count(),
+        'booked': Room.objects.filter(status='booked').count(),
+        'pending': Room.objects.filter(status='pending').count(),
+    }
+
+    # Pass context to the template
+    context = {
+        'rooms': rooms,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'status_counts': status_counts,
+    }
+    return render(request, 'core/room_list.html', context)
+
 
 # Create a new room
 def room_create(request):
@@ -47,27 +85,6 @@ def room_delete(request, room_id):
         messages.success(request, 'Room has been deleted successfully.')
         return redirect('room_list')
     return render(request, 'core/room_confirm_delete.html', {'room': room})
-
-def room_list(request):
-    search_query = request.GET.get('search', '')  # Get the search query from the request
-    sort_order = request.GET.get('sort', 'asc')  # Get sorting order
-
-    # Filter rooms based on the search query
-    rooms = Room.objects.filter(room_type__icontains=search_query)
-
-    # Apply sorting
-    if sort_order == 'desc':
-        rooms = rooms.order_by('-price_per_night')
-    else:
-        rooms = rooms.order_by('price_per_night')
-
-    return render(request, 'core/room_list.html', {
-        'rooms': rooms,
-        'sort_order': sort_order,
-        'search_query': search_query,
-    })
-
-
 
 def room_detail(request, room_id):
     room = get_object_or_404(Room, pk=room_id)

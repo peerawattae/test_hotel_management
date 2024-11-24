@@ -1,61 +1,82 @@
 <div class="container mt-4">
-    <h1>Room List</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Filter Sidebar -->
+            <div class="card">
+                <div class="card-header">FILTER</div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'room_list' %}">
+                        <!-- Search Field -->
+                        <div class="form-group">
+                            <label for="search">Search by Room ID or Room Type</label>
+                            <input
+                                type="text"
+                                name="search"
+                                id="search"
+                                value="{{ search_query }}"
+                                placeholder="Enter Room ID or Room Type"
+                                class="form-control mb-3"
+                            >
+                        </div>
 
-    <!-- Search Form -->
-    <form method="get" class="mb-3">
-        <div class="input-group">
-            <input
-                type="text"
-                name="search"
-                class="form-control"
-                placeholder="Search by Room Type"
-                value="{{ search_query }}">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-    </form>
+                        <!-- Status Filter -->
+                        <div class="form-group">
+                            <label for="status">Filter by Status</label>
+                            <select name="status" id="status" class="form-control mb-3">
+                                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+                                <option value="available" {% if status_filter == 'available' %}selected{% endif %}>Available ({{ status_counts.available }})</option>
+                                <option value="booked" {% if status_filter == 'booked' %}selected{% endif %}>Booked ({{ status_counts.booked }})</option>
+                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending ({{ status_counts.pending }})</option>
+                            </select>
+                        </div>
 
-    <!-- Sorting Buttons -->
-    <div class="mb-3">
-        <a href="?search={{ search_query }}&sort=asc" class="btn btn-primary {% if sort_order == 'asc' %}active{% endif %}">
-            Sort by Price (Low to High)
-        </a>
-        <a href="?search={{ search_query }}&sort=desc" class="btn btn-primary {% if sort_order == 'desc' %}active{% endif %}">
-            Sort by Price (High to Low)
-        </a>
-    </div>
-
-    <!-- Room Table -->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Room Type</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for room in rooms %}
-            <tr>
-                <td>{{ room.room_type }}</td>
-                <td>{{ room.description }}</td>
-                <td>${{ room.price_per_night }}</td>
-                <td>
-                    <a href="{% url 'room_detail' room.id %}" class="btn btn-info btn-sm">View</a>
-                    <a href="{% url 'room_edit' room.id %}" class="btn btn-warning btn-sm">Edit</a>
-                    <form method="post" action="{% url 'room_delete' room.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        <button type="submit" class="btn btn-primary btn-block">Apply</button>
+                        <a href="{% url 'room_list' %}" class="btn btn-secondary btn-block">Clear Filters</a>
                     </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="text-center">No rooms found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <!-- Room List -->
+            <h2>Room List</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Room ID</th>
+                        <th>Room Type</th>
+                        <th>Price</th>
+                        <th>Capacity</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td>{{ room.id }}</td>
+                        <td>{{ room.room_type }}</td>
+                        <td>{{ room.description }}</td>
+                        <td>${{ room.price_per_night }}</td>
+                        <td>{{ room.status|title }}</td>
+                        <td>
+                            <a href="{% url 'room_detail' room.id %}" class="btn btn-info btn-sm">View</a>
+                            <a href="{% url 'room_edit' room.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <form method="post" action="{% url 'room_delete' room.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No rooms found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 <a href="{% url 'create_room' %}" class="btn btn-success">Create New Room</a>
 <div class="d-flex justify-content-end mb-3">
