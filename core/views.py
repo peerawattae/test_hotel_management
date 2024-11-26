@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect
 from .forms import BookingForm, RoomForm, PaymentForm, CustomerForm
 from django.contrib import messages
+from django.db.models import Q
 
 #code for user view
 def dashboard(request):
@@ -12,31 +13,39 @@ def dashboard(request):
 
 #code for user view
 
+from django.db.models import F
+
 def room_list(request):
-    # Get filter parameters from the request
+    # Get filter and sort parameters from the request
     status_filter = request.GET.get('status', 'all')  # Default to 'all'
-    search_query = request.GET.get('search', '')  # Get the search query for Room ID or Room Type
+    search_query = request.GET.get('search', '').strip()  # Search query
+    sort_option = request.GET.get('sort', '')  # Sorting option
 
-    # Start with all rooms and filter based on search query and status
-    rooms = Room.objects.all()
+    # Filter rooms based on status
+    if status_filter == 'available':
+        rooms = Room.objects.filter(status='available')
+    elif status_filter == 'booked':
+        rooms = Room.objects.filter(status='booked')
+    elif status_filter == 'pending':
+        rooms = Room.objects.filter(status='pending')
+    else:
+        rooms = Room.objects.all()
 
-    # Apply search filter for Room ID or Room Type if provided
-# Apply search filter for Room ID or Room Type if provided
+    # Search functionality for room number, ID, or type
     if search_query:
         rooms = rooms.filter(
-            id__icontains=search_query
-        ) | rooms.filter(room_type__icontains=search_query)  # Search by Room ID or Room Type
+            Q(room_number__icontains=search_query) |
+            Q(id__icontains=search_query) |
+            Q(room_type__icontains=search_query)
+        )
 
+    # Sorting functionality
+    if sort_option == 'price_asc':
+        rooms = rooms.order_by('price_per_night')  # Sort by price (ascending)
+    elif sort_option == 'price_desc':
+        rooms = rooms.order_by('-price_per_night')  # Sort by price (descending)
 
-    # Apply status filter
-    if status_filter == 'available':
-        rooms = rooms.filter(status='available')
-    elif status_filter == 'booked':
-        rooms = rooms.filter(status='booked')
-    elif status_filter == 'pending':
-        rooms = rooms.filter(status='pending')
-
-    # Count for each status (optional, useful for UI)
+    # Status counts for filters
     status_counts = {
         'all': Room.objects.count(),
         'available': Room.objects.filter(status='available').count(),
@@ -44,12 +53,12 @@ def room_list(request):
         'pending': Room.objects.filter(status='pending').count(),
     }
 
-    # Pass context to the template
     context = {
         'rooms': rooms,
-        'status_filter': status_filter,
-        'search_query': search_query,
         'status_counts': status_counts,
+        'selected_status': status_filter,
+        'sort_option': sort_option,
+        'search_query': search_query,
     }
     return render(request, 'core/room_list.html', context)
 
