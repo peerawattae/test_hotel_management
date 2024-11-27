@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from .forms import BookingForm, RoomForm, PaymentForm, CustomerForm
 from django.contrib import messages
 from django.db.models import Q
+from django.utils.dateformat import format
 
 #code for user view
 def dashboard(request):
@@ -266,19 +267,16 @@ def room_calendar_view(request, room_id):
     room = get_object_or_404(Room, pk=room_id)
     bookings = Booking.objects.filter(room=room, status='confirmed')
 
-    # Debugging: Print out the bookings and booked dates
-    print(bookings)  # Check in the console
+    # Prepare booked dates for the calendar
     booked_dates = [
         {
             "start": booking.check_in_date.strftime('%Y-%m-%d'),
-            "end": (booking.check_out_date + timezone.timedelta(days=1)).strftime('%Y-%m-%d'),
-            "title": f"Booked by {booking.customer.first_name} {booking.customer.last_name}"
+            "end": (booking.check_out_date).strftime('%Y-%m-%d'),  # Include end date
+            "title": f"Booked by {booking.customer.first_name} {booking.customer.last_name}",
         }
         for booking in bookings
     ]
 
-    # Debugging: Print out the booked dates
-    print(booked_dates)  # Check in the console
 
     context = {
         "room": room,
@@ -286,6 +284,10 @@ def room_calendar_view(request, room_id):
     }
 
     return render(request, "core/room_calendar.html", context)
+
+
+    # Debugging: Print out the booked dates
+
 
 def home_view(request):
     """

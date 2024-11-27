@@ -1,27 +1,41 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Room Booking Calendar</title>
-    <style>
-        .booked { background-color: red; color: white; }
-    </style>
+    <title>Booking Calendar</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar/main.min.js"></script>
 </head>
 <body>
-    <h1>Room Booking Calendar for {{ room.name }}</h1>
-    <table>
-        <tr>
-            <th>Date</th>
-            <th>Status</th>
-        </tr>
-        {% for booking in booked_dates %}
-        <tr>
-            <td>{{ booking.start }} to {{ booking.end }}</td>
-            <td class="booked">{{ booking.title }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="2">No bookings yet.</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <h1>Booking Calendar for {{ room.room_type }}</h1>
+    <div id="calendar"></div>
+    {% if booked_dates %}
+    <div id="calendar"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: {{ booked_dates|safe }}
+            });
+            calendar.render();
+        });
+    </script>
+{% else %}
+    <p>No bookings available for this room.</p>
+{% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+
+            // Initialize FullCalendar
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: {{ booked_dates|safe }} // Pass the booked dates
+            });
+
+            calendar.render();
+        });
+    </script>
 </body>
 </html>

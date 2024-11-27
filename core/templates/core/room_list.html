@@ -51,7 +51,6 @@
                         <th>Room Type</th>
                         <th>Description</th>
                         <th>Price</th>
-                        <th>Capacity</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -65,6 +64,7 @@
                         <td>${{ room.price_per_night }}</td>
                         <td>{{ room.status|title }}</td>
                         <td>
+                            <a href="{% url 'room_calendar' room.id %}" class="btn btn-info btn-sm">View Calendar</a>
                             <a href="{% url 'room_detail' room.id %}" class="btn btn-info btn-sm">View</a>
                             <a href="{% url 'room_edit' room.id %}" class="btn btn-warning btn-sm">Edit</a>
                             <form method="post" action="{% url 'room_delete' room.id %}" style="display:inline;">

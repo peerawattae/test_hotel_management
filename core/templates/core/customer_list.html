@@ -7,7 +7,6 @@
                 <th>Last Name</th>
                 <th>Email</th>
                 <th>Phone Number</th>
-                <th>Address</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -17,8 +16,7 @@
                 <td>{{ customer.first_name }}</td>
                 <td>{{ customer.last_name }}</td>
                 <td>{{ customer.email }}</td>
-                <td>{{ customer.phone_number }}</td>
-                <td>{{ customer.address }}</td>
+                <td>{{ customer.phone_num }}</td>
                 <td>
                     <a href="{% url 'customer_edit' customer.id %}" class="btn btn-warning btn-sm">Edit</a>
                     <form method="post" action="{% url 'customer_delete' customer.id %}" style="display:inline;">
